@@ -5,14 +5,14 @@ import time
 import threading
 import math
 import json
-import coordonnees
+import coordonnees_drone
 
 # -----------------------------
 #   CONSTANTES GLOBALES
 # -----------------------------
 
-PLAN_PATH = r"C:\local\Unreal_AirSim\Python\Test1\ressources\plan.tiff"
-ARROW_PATH = r"C:\local\Unreal_AirSim\Python\Test1\ressources\arrow.png"
+PLAN_PATH = r"C:\local\Unreal_AirSim\Python\Test1\ressources\map_assets\plan.tiff"
+ARROW_PATH = r"C:\local\Unreal_AirSim\Python\Test1\ressources\map_assets\arrow.png"
 
 SCALE_ARROW = 35 / 900
 
@@ -31,7 +31,7 @@ def generer_images(client):
 
     # 2. Position drone sur plan
 
-    x_img, y_img, yaw_deg = coordonnees.calculer_position_plan(client)
+    x_img, y_img, yaw_deg = coordonnees_drone.calculer_position_plan(client)
 
 
 
@@ -69,3 +69,12 @@ def generer_images(client):
     plan[y1c:y2c, x1c:x2c] = (alpha * roi_arrow[:, :, :3] + (1 - alpha) * roi_plan).astype(np.uint8)
 
     return img_resized, plan
+
+
+def afficher_images(img_cam, img_plan):
+    cv2.imshow("Plan du monde", img_plan)
+    cv2.imshow("AirSim - Camera", img_cam)
+    key = cv2.waitKey(1) & 0xFF
+
+def fermer_fenetres():
+    cv2.destroyAllWindows()
