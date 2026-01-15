@@ -46,6 +46,9 @@ label_plan.image = photo_plan
 def overlay_png(background, overlay, x, y):
     h, w = overlay.shape[:2]
 
+    x -= overlay.shape[1] // 2
+    y -= overlay.shape[0] // 2
+
     # zone où coller
     roi = background[y:y+h, x:x+w]
 
