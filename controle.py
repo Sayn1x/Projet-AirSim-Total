@@ -1,10 +1,10 @@
 import airsim
 import map
-import affichage
 import time
 import math
+import numpy as np
 from pynput import keyboard
-import coordonnees
+import coordonnees_drone
 import json
 from datetime import datetime
 import os
@@ -60,7 +60,7 @@ def on_press(key):
 
         if mode_enregistrement:
             if char == 'y':
-                x, y, z = coordonnees.calculer_position_unreal(client)
+                x, y, z = coordonnees_drone.calculer_position_unreal(client)
                 positions_enregistrees.append({"x": x, "y": y, "z": z})
                 print(f"Position enregistrée : {x:.2f}, {y:.2f}, {z:.2f}")
                 fermer_fenetres = True
@@ -70,6 +70,17 @@ def on_press(key):
                 print("Position ignorée.")
                 fermer_fenetres = True
                 mode_enregistrement = False
+
+        if char == "g":
+            x, y, z = coordonnees_drone.calculer_position_unreal(client)
+            positions_enregistrees.append({"x": x, "y": y, "z": z, "inspection": True})
+            print(f"Position enregistrée avec inspection : {x:.2f}, {y:.2f}, {z:.2f}")
+
+
+        if char == "h":
+            x, y, z = coordonnees_drone.calculer_position_unreal(client)
+            positions_enregistrees.append({"x": x, "y": y, "z": z, "inspection": False})
+            print(f"Position enregistrée sans inspection : {x:.2f}, {y:.2f}, {z:.2f}")
 
     except AttributeError:
         pressed_keys.add(key)
@@ -96,13 +107,13 @@ try:
         # --- Affichage / capture ---
         if trigger_affichage:
             img_cam, img_plan = map.generer_images(client)
-            affichage.afficher_images(img_cam, img_plan)
+            map.afficher_images(img_cam, img_plan)
             print("\nVoulez-vous enregistrer la position ? (y/n)")
             mode_enregistrement = True
             trigger_affichage = False
 
         if fermer_fenetres:
-            affichage.fermer_fenetres()
+            map.fermer_fenetres()
             fermer_fenetres = False
 
         # --- Commandes ---
@@ -144,10 +155,11 @@ try:
             yaw_mode=airsim.YawMode(is_rate=True, yaw_or_rate=yaw_rate)
         )
 
+
         time.sleep(0.03)
 
 # =========================
-# ARRÊT PROPRE
+# ARRÊT
 # =========================
 
 except KeyboardInterrupt:
@@ -177,7 +189,7 @@ finally:
     if len(positions_enregistrees) != 0:
         # Chemin complet du fichier
         nom_fichier = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") + ".json"
-        chemin_fichier = os.path.join(r"C:\local\Unreal_AirSim\Python\Test1\ParcoursPositions", nom_fichier)
+        chemin_fichier = os.path.join(r"C:\local\Unreal_AirSim\Python\Test1\ressources\data\ParcoursPositions", nom_fichier)
 
         # Écriture du fichier JSON
         with open(chemin_fichier, "w") as f:
